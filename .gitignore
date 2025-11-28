@@ -1,0 +1,67 @@
+# .gitignore for .NET / Rider projects
+
+# Build artifacts
+/bin/
+/obj/
+**/bin/
+**/obj/
+
+# Visual Studio temporary files, build results, and
+# user-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider/project files
+.idea/
+*.sln.iml
+
+# Mono
+*.pidb
+*.userprefs
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/packages/
+project.lock.json
+project.fragment.lock.json
+*.nuget.props
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Visual Studio Code
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Rider caches and local settings
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/vcs.xml
+.idea/**/shelf
+
+# Dotnet publish
+publish/
+
+# Rider build artifacts
+WebStoreConsoleApp/**/bin/
+WebStoreConsoleApp/**/obj/
+
+# Ignore Rider project files (keep if you want to track certain .idea files)
+# If you want to keep project-specific .idea files, remove the above .idea/ line
+
+# Keep migrations (do NOT ignore) - you generally want to track Migrations/
+# Keep designer and snapshot files under Migrations as they are part of migrations
+
+# Keep package restore related files
+!**/packages/**/.gitkeep
+
