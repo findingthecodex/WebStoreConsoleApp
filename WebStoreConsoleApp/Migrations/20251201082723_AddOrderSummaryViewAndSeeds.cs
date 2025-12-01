@@ -15,72 +15,73 @@ namespace WebStoreConsoleApp.Migrations
     public partial class AddOrderSummaryViewAndSeeds : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql(@"
-            CREATE VIEW IF NOT EXISTS OrderSummaryView AS
-            SELECT
-                o.OrderId,
-                o.OrderDate,
-                c.CustomerName AS CustomerName,
-                c.CustomerEmail AS CustomerEmail,
-                IFNULL(SUM(orw.OrderRowQuantity * orw.OrderRowUnitPrice), 0) AS TotalPrice
-            FROM Orders o
-            JOIN Customers c ON c.CustomerId = o.CustomerId
-            LEFT JOIN OrderRows orw ON orw.OrderId = o.OrderId
-            GROUP BY o.OrderId, o.OrderDate, c.CustomerName, c.CustomerEmail;
-            ");
-            
-            //Trigger
-            
-            // AFTER INSERT
-            migrationBuilder.Sql(@"
-            CREATE TRIGGER IF NOT EXISTS trg_OrderRow_Insert
-            AFTER INSERT ON OrderRows
-            BEGIN
-                UPDATE Orders
-                SET TotalAmount = (
-                                    SELECT IFNULL(SUM(OrderRowQuantity * OrderRowUnitPrice), 0) 
-                                    FROM OrderRows
-                                    WHERE OrderId = NEW.OrderId;
-                                 )
-                WHERE OrderId = NEW.OrderId;
-                END; 
-            ");
-            
-            // AFTER UPDATE
-            migrationBuilder.Sql(@"
-            CREATE TRIGGER IF NOT EXISTS trg_OrderRow_Update
-            AFTER UPDATE ON OrderRows
-            BEGIN
-                UPDATE Orders
-                SET TotalAmount = (
-                                    SELECT IFNULL(SUM(OrderRowQuantity * OrderRowUnitPrice), 0)
-                                    FROM OrderRows WHERE OrderId = NEW.OrderId
-                                    )
-                WHERE OrderId = NEW.OrderId;
-                END;
-            ");
-
-            // AFTER DELETE
-            migrationBuilder.Sql(@"
-            CREATE TRIGGER IF NOT EXISTS trg_OrderRow_Delete
-            AFTER DELETE ON OrderRows
-            BEGIN
-                UPDATE Orders
-                SET TotalAmount = (
-                                    SELECT IFNULL(SUM(Quantity * UnitPrice), 0)
-                                    FROM OrderRows
-                                    WHERE OrderId = NEW.OrderId
+       protected override void Up(MigrationBuilder migrationBuilder)
+       {
+           migrationBuilder.Sql(@"
+           CREATE VIEW IF NOT EXISTS OrderSummaryView AS
+           SELECT
+               o.OrderId,
+               c.CustomerName,
+               c.CustomerEmail,
+               o.OrderDate,
+               IFNULL(SUM(orw.OrderRowQuantity * orw.OrderRowUnitPrice), 0) AS TotalAmount
+           FROM Orders o
+           JOIN Customers c ON o.CustomerId = c.CustomerId
+           LEFT JOIN OrderRows orw ON o.OrderId = orw.OrderId
+           GROUP BY o.OrderId, c.CustomerName, c.CustomerEmail, o.OrderDate;
+           ");
+           
+           // AFTER INSERT
+           migrationBuilder.Sql(@"
+           CREATE TRIGGER IF NOT EXISTS trg_OrderRow_Insert
+           AFTER INSERT ON OrderRows
+           BEGIN
+               UPDATE Orders
+               SET TotalAmount = (
+                                       SELECT IFNULL(SUM(OrderRowQuantity * OrderRowUnitPrice), 0)
+                                       FROM OrderRows
+                                       WHERE OrderId = NEW.OrderId
                                     )
                WHERE OrderId = NEW.OrderId;
-               END;        
-            ");
-            
-            //CustomerOrderCountView
-            //CREATE VIEW IF NOT EXISTS OrderSummaryView AS
-
-        }
+           END;
+           ");
+       
+           // AFTER UPDATE
+           migrationBuilder.Sql(@"
+           CREATE TRIGGER IF NOT EXISTS trg_OrderRow_Update
+           AFTER UPDATE ON OrderRows
+           BEGIN
+               UPDATE Orders
+               SET TotalAmount = (
+                                       SELECT IFNULL(SUM(OrderRowQuantity * OrderRowUnitPrice), 0)
+                                       FROM OrderRows WHERE OrderId = OLD.OrderId
+                                       )
+               WHERE OrderId = OLD.OrderId;
+       
+               UPDATE Orders
+               SET TotalAmount = (
+                                       SELECT IFNULL(SUM(OrderRowQuantity * OrderRowUnitPrice), 0)
+                                       FROM OrderRows WHERE OrderId = NEW.OrderId
+                                       )
+               WHERE OrderId = NEW.OrderId;
+           END;
+           ");
+       
+           // AFTER DELETE
+           migrationBuilder.Sql(@"
+           CREATE TRIGGER IF NOT EXISTS trg_OrderRow_Delete
+           AFTER DELETE ON OrderRows
+           BEGIN
+               UPDATE Orders
+               SET TotalAmount = (
+                                       SELECT IFNULL(SUM(OrderRowQuantity * OrderRowUnitPrice), 0)
+                                       FROM OrderRows
+                                       WHERE OrderId = OLD.OrderId
+                                       )
+              WHERE OrderId = OLD.OrderId;
+           END;
+           ");
+       }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)

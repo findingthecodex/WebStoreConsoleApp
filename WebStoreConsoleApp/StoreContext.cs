@@ -41,7 +41,7 @@ public class StoreContext : DbContext
             o.HasKey(x => x.OrderId);
             o.Property(x => x.OrderDate).IsRequired();
             o.Property(x => x.OrderStatus).IsRequired();
-            o.Property(x => x.OrderTotalPrice);
+            o.Property(x => x.TotalAmount);
 
             // Foreign Key Relation
             o.HasOne(x => x.Customer)

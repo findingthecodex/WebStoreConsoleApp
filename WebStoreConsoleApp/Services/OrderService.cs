@@ -7,7 +7,10 @@ using WebStoreConsoleApp.Models;
 namespace WebStoreConsoleApp.Services;
 
 public class OrderService
-{
+{ 
+    /// <summary>
+    ///  Lists all orders in the database.
+    /// </summary>
     public static async Task OrderListAsync()
     {
         using var db = new StoreContext();
@@ -21,10 +24,14 @@ public class OrderService
         foreach (var order in orders)
         {
             Console.WriteLine(
-                $"{order.OrderId} | {order.Customer?.CustomerName} | {order.OrderDate} | {order.OrderTotalPrice} | {order.OrderStatus}");
+                $"{order.OrderId} | {order.Customer?.CustomerName} | {order.OrderDate} | {order.TotalAmount} | {order.OrderStatus}");
         }
     }
-
+    
+    /// <summary>
+    ///  Lists order details for a specific order ID.
+    /// </summary>
+    /// <param name="detailsId"></param>
     public static async Task OrderDetailsAsync(int detailsId)
     {
         using var db = new StoreContext();
@@ -52,7 +59,10 @@ public class OrderService
             }
         }
     }
-
+    
+    /// <summary>
+    ///  Adds a new order to the database.
+    /// </summary>
     public static async Task OrderAddAsync()
     {
         await CustomerService.CustomerListAsync();
@@ -148,7 +158,7 @@ public class OrderService
             CustomerId = customerId,
             OrderDate = DateTime.Now,
             OrderStatus = "Pending",
-            OrderTotalPrice = total,
+            TotalAmount = total,
             OrderRows = orderRows
         };
 
@@ -166,6 +176,9 @@ public class OrderService
         Console.WriteLine($"Order saved with OrderId: {newOrder.OrderId}");
     }
     
+    /// <summary>
+    ///  Lists orders filtered by their status.
+    /// </summary>
     public static async Task OrderByStatusAsync()
     {
         using var db = new StoreContext();
@@ -180,7 +193,7 @@ public class OrderService
         foreach (var order in orders)
         {
             Console.WriteLine(
-                $"OrderID: {order.OrderId} | Customer: {order.Customer?.CustomerName} | OrderDate: {order.OrderDate} | TotalAmount: {order.OrderTotalPrice} | OrderStatus: {order.OrderStatus}");
+                $"OrderID: {order.OrderId} | Customer: {order.Customer?.CustomerName} | OrderDate: {order.OrderDate} | TotalAmount: {order.TotalAmount} | OrderStatus: {order.OrderStatus}");
         }
 
         Console.WriteLine();
@@ -206,10 +219,13 @@ public class OrderService
         foreach (var order in filteredOrders)
         {
             Console.WriteLine(
-                $"OrderID: {order.OrderId} | Customer: {order.Customer?.CustomerName} | OrderDate: {order.OrderDate} | TotalAmount: {order.OrderTotalPrice} | OrderStatus: {order.OrderStatus}");
+                $"OrderID: {order.OrderId} | Customer: {order.Customer?.CustomerName} | OrderDate: {order.OrderDate} | TotalAmount: {order.TotalAmount} | OrderStatus: {order.OrderStatus}");
         }
     }
     
+    /// <summary>
+    ///  Lists order summaries including customer email.
+    /// </summary>
     public static async Task ListOrdersSummary()
     {
         using var db = new StoreContext();
@@ -220,7 +236,7 @@ public class OrderService
 
         foreach (var summary in summaries)
         {
-            Console.WriteLine($"{summary.OrderId} | {summary.OrderDate} | {summary.TotalPrice} | {summary.CustomerEmail}");
+            Console.WriteLine($"{summary.OrderId} | {summary.OrderDate} | {summary.TotalAmount} | {summary.CustomerEmail}");
         }
     }
 }

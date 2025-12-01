@@ -14,7 +14,7 @@ public class Order
     [Required]
     public string? OrderStatus { get; set; }
     
-    public decimal OrderTotalPrice { get; set; }
+    public decimal TotalAmount { get; set; }
     
     // Foreign Key
     public int CustomerId { get; set; }

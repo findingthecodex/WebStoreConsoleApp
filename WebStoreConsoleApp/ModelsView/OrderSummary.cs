@@ -17,5 +17,5 @@ public class OrderSummary
     
     public string CustomerEmail { get; set; } = string.Empty;
     
-    public decimal TotalPrice { get; set; }
+    public decimal TotalAmount { get; set; }
 }

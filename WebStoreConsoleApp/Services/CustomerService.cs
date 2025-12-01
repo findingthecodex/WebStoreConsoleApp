@@ -7,7 +7,10 @@ using WebStoreConsoleApp.Models;
 namespace WebStoreConsoleApp.Services;
 
 public class CustomerService
-{
+{   
+    /// <summary>
+    ///  Lists all customers in the database.
+    /// </summary>
     public static async Task CustomerListAsync()
     {
         using var db = new StoreContext();
@@ -24,6 +27,9 @@ public class CustomerService
         }
     }
     
+    /// <summary>
+    ///  Adds a new customer to the database.
+    /// </summary>
     public static async Task CustomerAddAsync()
     {
         
@@ -64,6 +70,10 @@ public class CustomerService
         }
     }
     
+    /// <summary>
+    ///  Edits an existing customer in the database.
+    /// </summary>
+    /// <param name="customerId"></param>
     public static async Task CustomerEditAsync(int customerId)
     {
         using var db = new StoreContext();
@@ -107,6 +117,9 @@ public class CustomerService
         }
     }
 
+    /// <summary>
+    ///  Deletes a customer from the database.
+    /// </summary>
     public static async Task CustomerDeleteAsync()
     {
         using var db = new StoreContext();
