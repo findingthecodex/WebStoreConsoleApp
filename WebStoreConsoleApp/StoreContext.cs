@@ -10,6 +10,7 @@ public class StoreContext : DbContext
     public DbSet<OrderRow> OrderRows => Set<OrderRow>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<OrderSummary> OrderSummaries => Set<OrderSummary>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -19,6 +20,14 @@ public class StoreContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<OrderSummary>(o =>
+            {
+                o.HasNoKey(); // Saknar PK alltså har ingen primärnyckel
+                o.ToView("OrderSummaryView"); // Koppla tabellen mot SQlite
+            }
+        );
+            
         modelBuilder.Entity<Customer>(c =>
         {
             c.HasKey(c => c.CustomerId);
