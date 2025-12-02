@@ -32,8 +32,8 @@ public class Program
         {
             while (true)
             {
-                Console.WriteLine("\nCustomer Menu: 1. List | 2. Add | 3. Edit (3 <id>) | 4. Delete | 5. Exit");
-                Console.WriteLine(">");
+                Console.WriteLine("\nCustomers: 1. List | 2. Add | 3. Edit (3 <id>) | 4. Delete | 0. Exit");
+                Console.WriteLine(" ");
                 var line = Console.ReadLine()?.Trim() ?? string.Empty;
 
                 if (line.Equals("..", StringComparison.OrdinalIgnoreCase))
@@ -66,7 +66,7 @@ public class Program
                     case "4":
                         await CustomerService.CustomerDeleteAsync();
                         break;
-                    case "5":
+                    case "0":
                         return;
                     default:
                         Console.WriteLine("Unknown command");
@@ -80,8 +80,8 @@ public class Program
             while (true)
             {
                 Console.WriteLine(
-                    "\nOrder Menu: 1. Order-List | 2. Order-Details | 3. New-Order | 4. Status | 5. Order-Summary | 6. Exit");
-                Console.WriteLine(">");
+                    "\nOrders: 1. Order-List | 2. Order-Details | 3. New-Order | 4. Status | 5. Order-Summary | 0. Exit");
+                Console.WriteLine(" ");
                 var line = Console.ReadLine()?.Trim() ?? string.Empty;
 
                 if (line.Equals("..", StringComparison.OrdinalIgnoreCase))
@@ -115,7 +115,7 @@ public class Program
                     case "5":
                         await OrderService.ListOrdersSummary();
                         break;
-                    case "6":
+                    case "0":
                         return;
                     default:
                         Console.WriteLine("Unknown command");
@@ -128,14 +128,8 @@ public class Program
         {
             while (true)
             {
-                Console.WriteLine("Categories: ");
-                Console.WriteLine("1. Headphones");
-                Console.WriteLine("2. Phones");
-                Console.WriteLine("3. Tablets");
-                Console.WriteLine("4. Laptops");
-                Console.WriteLine("5. Accessories");
-                Console.WriteLine("6. New Order");
-                Console.WriteLine("0. Exit");
+                Console.WriteLine(
+                    "\nCategories : 1. Headphones | 2. Phones | 3. Laptops | 4. Tablets | 5. Accessories | 6. New-Order | 0. Exit");
                 Console.WriteLine(" ");
                 var line = Console.ReadLine()?.Trim() ?? string.Empty;
                 var parts = line.Split(' ');

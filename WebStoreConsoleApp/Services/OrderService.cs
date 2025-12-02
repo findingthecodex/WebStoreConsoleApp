@@ -1,3 +1,4 @@
+
 namespace WebStoreConsoleApp.Services;
 
 public class OrderService
@@ -15,10 +16,11 @@ public class OrderService
         Console.WriteLine("Order-List:");
         Console.WriteLine("OrderID | Name | Product | OrderDate | TotalAmount | OrderStatus");
 
+        var culture = new CultureInfo("sv-SE");
         foreach (var order in orders)
         {
             Console.WriteLine(
-                $"{order.OrderId} | {order.Customer?.CustomerName} | {order.OrderDate} | {order.TotalAmount} | {order.OrderStatus}");
+                $"{order.OrderId} | {order.Customer?.CustomerName} | {order.OrderDate} | {order.TotalAmount.ToString("C", culture)} | {order.OrderStatus}");
         }
     }
     
@@ -37,19 +39,21 @@ public class OrderService
             .ThenInclude(x => x.Product)
             .ToListAsync();
         Console.WriteLine("Order Details:");
-        Console.WriteLine("OrderID | ProductName | Quantity | Price per unit | Row Total | Order Total");
+        Console.WriteLine("OrderID | ProductName | Quantity | Price");
         foreach (var order in orderdetails)
         {
             if (order.OrderId == detailsId)
             {
+                var culture = new CultureInfo("sv-SE");
                 foreach (var orderRow in order.OrderRows!)
                 {
                     var rowTotal = orderRow.OrderRowQuantity * orderRow.OrderRowUnitPrice;
                     var orderTotal = orderRow.OrderRowQuantity * rowTotal;
                     Console.WriteLine(
-                        $"{order.OrderId} | {orderRow.Product?.ProductName} | {orderRow.OrderRowQuantity} | {orderRow.OrderRowUnitPrice} | {rowTotal}");
-                    Console.WriteLine($"Total Amount: {orderTotal}");
+                        $"{order.OrderId} | {orderRow.Product?.ProductName} | {orderRow.OrderRowQuantity} | {orderRow.OrderRowUnitPrice.ToString("C", culture)}");
                 }
+                Console.WriteLine(" ");
+                Console.WriteLine($"Total Amount: {order.TotalAmount.ToString("C", culture)}");
             }
         }
     }
@@ -65,6 +69,7 @@ public class OrderService
         
         Console.WriteLine(" ");
         Console.Write("Please enter the Customer ID for the new order: ");
+        Console.WriteLine("(Type EXIT to cancel)");
 
         if (!int.TryParse(Console.ReadLine(), out int customerId))
         {
@@ -83,10 +88,12 @@ public class OrderService
             .AsNoTracking()
             .OrderBy(p => p.ProductId)
             .ToListAsync();
+        
+        var culture = new CultureInfo("sv-SE");
         foreach (var product in products)
         {
             Console.WriteLine(
-                $"{product.ProductId} | {product.ProductName} | {product.ProductPrice} ");
+                $"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)} ");
         }
 
         var orderRows = new List<OrderRow>();
@@ -107,7 +114,7 @@ public class OrderService
                 Console.WriteLine("Product ID is required.");
             }
 
-            Console.WriteLine("Product: " + productToAdd?.ProductName + " | Price: " + productToAdd?.ProductPrice);
+            Console.WriteLine("Product: " + productToAdd?.ProductName + " | Price: " + productToAdd?.ProductPrice.ToString("C", culture));
 
             Console.WriteLine(" ");
             Console.Write("Enter quantity: ");
@@ -130,7 +137,7 @@ public class OrderService
 
             Console.WriteLine(" ");
             Console.WriteLine("Product(s) added to order: " + productToAdd?.ProductName + " | Quantity: " + quantity +
-                              " | Unit Price: " + productToAdd?.ProductPrice);
+                              " | Unit Price: " + productToAdd?.ProductPrice.ToString("C", culture));
 
             Console.WriteLine("Do you want to add more products? (y/n): ");
             var addMore = Console.ReadLine()?.Trim().ToLower();
@@ -166,7 +173,7 @@ public class OrderService
         foreach (var x in orderRows)
         {
             Console.WriteLine("ProductID: " + x.ProductId + " | + Product(s): " + x.Product + " | Quantity: " +
-                              x.OrderRowQuantity + " | Unit Price: " + x.OrderRowUnitPrice);
+                              x.OrderRowQuantity + " | Unit Price: " + x.OrderRowUnitPrice.ToString("C", culture));
         }
 
         Console.WriteLine($"\nTOTAL ORDER SUM: {total}");
@@ -271,9 +278,10 @@ public class OrderService
         Console.WriteLine("Order-Summary:");
         Console.WriteLine("Order ID | OrderDate | TotalAmount SEK | Customer Email:");
 
+        var culture = new CultureInfo("sv-SE");
         foreach (var summary in summaries)
         {
-            Console.WriteLine($"{summary.OrderId} | {summary.OrderDate} | {summary.TotalAmount} | {summary.CustomerEmail}");
+            Console.WriteLine($"{summary.OrderId} | {summary.OrderDate} | {summary.TotalAmount.ToString("C", culture)} | {summary.CustomerEmail}");
         }
     }
 }

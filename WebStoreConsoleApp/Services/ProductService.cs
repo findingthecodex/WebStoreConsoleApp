@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace WebStoreConsoleApp.Services;
 
 public class ProductService
@@ -15,13 +17,12 @@ public class ProductService
             .ToListAsync();
         Console.WriteLine("Headphones List:");
         Console.WriteLine("ProductID | ProductName | ProductPrice");
-
+        
+        var culture = new CultureInfo("sv-SE");
         foreach (var product in products)
         {
-            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice}");
+            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)}");
         }
-
-        Console.WriteLine(" ");
     }
 
     /// <summary>
@@ -38,12 +39,11 @@ public class ProductService
         Console.WriteLine("Phones List:");
         Console.WriteLine("ProductID | ProductName | ProductPrice");
 
+        var culture = new CultureInfo("sv-SE");
         foreach (var product in products)
         {
-            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice}");
+            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)}");
         }
-
-        Console.WriteLine(" ");
     }
     
     /// <summary>
@@ -60,12 +60,11 @@ public class ProductService
         Console.WriteLine("Laptops List:");
         Console.WriteLine("ProductID | ProductName | ProductPrice");
 
+        var culture = new CultureInfo("sv-SE");
         foreach (var product in products)
         {
-            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice}");
+            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)}");
         }
-
-        Console.WriteLine(" ");
     }
     
     /// <summary>
@@ -82,12 +81,11 @@ public class ProductService
         Console.WriteLine("Tablets List:");
         Console.WriteLine("ProductID | ProductName | ProductPrice");
 
+        var culture = new CultureInfo("sv-SE");
         foreach (var product in products)
         {
-            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice}");
+            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)}");
         }
-
-        Console.WriteLine(" ");
     }
     
     /// <summary>
@@ -104,11 +102,10 @@ public class ProductService
         Console.WriteLine("Accessories List:");
         Console.WriteLine("ProductID | ProductName | ProductPrice");
 
+        var culture = new CultureInfo("sv-SE");
         foreach (var product in products)
         {
-            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice}");
+            Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)}");
         }
-
-        Console.WriteLine(" ");
     }
 }

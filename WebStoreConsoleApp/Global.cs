@@ -7,5 +7,5 @@ global using WebStoreConsoleApp.Models;
 global using WebStoreConsoleApp.Services;
 global using WebStoreConsoleApp.SeedData;
 global using WebStoreConsoleApp;
-
+global using System.Globalization;
 
