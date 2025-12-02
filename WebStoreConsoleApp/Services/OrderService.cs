@@ -11,7 +11,8 @@ public class OrderService
         using var db = new StoreContext();
         var orders = await db.Orders
             .AsNoTracking()
-            .OrderBy(c => c.OrderId).Include(order => order.Customer)
+            .OrderBy(c => c.OrderId)
+            .Include(order => order.Customer)
             .ToListAsync();
         Console.WriteLine("Order-List:");
         Console.WriteLine("OrderID | Name | Product | OrderDate | TotalAmount | OrderStatus");
@@ -102,6 +103,8 @@ public class OrderService
         {
             Console.WriteLine(" ");
             Console.WriteLine("Add product to the order (ProductID): ");
+            Console.WriteLine($"For customer: {customer?.CustomerName}");
+            Console.WriteLine("(Type EXIT to cancel)");
             if (!int.TryParse(Console.ReadLine(), out int productId))
             {
                 Console.WriteLine("Product ID is required.");
@@ -118,6 +121,7 @@ public class OrderService
 
             Console.WriteLine(" ");
             Console.Write("Enter quantity: ");
+            Console.WriteLine("(Type EXIT to cancel)");
             if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
             {
                 Console.WriteLine("Quantity must be a positive number.");
@@ -283,5 +287,50 @@ public class OrderService
         {
             Console.WriteLine($"{summary.OrderId} | {summary.OrderDate} | {summary.TotalAmount.ToString("C", culture)} | {summary.CustomerEmail}");
         }
+    }
+
+    public static async Task OrderDeleteAsync()
+    {
+        using var db = new StoreContext();
+
+        var orders = await db.Orders
+            .AsNoTracking()
+            .OrderBy(o => o.OrderId)
+            .Include(order => order.Customer)
+            .ToListAsync();
+        Console.WriteLine("Orders: ");
+        Console.WriteLine("OrderID | OrderDate | TotalAmount | OrderStatus");
+        var culture = new CultureInfo("sv-SE");
+        foreach (var order in orders)
+        {
+            Console.WriteLine(
+                $"{order.OrderId} | {order.OrderDate} | {order.TotalAmount.ToString("C", culture)} | {order.OrderStatus}");
+        }
+
+        Console.Write("Please enter the Order ID to delete: ");
+        Console.WriteLine("(Type EXIT to cancel)");
+        
+        if (!int.TryParse(Console.ReadLine(), out int orderId))
+        {
+            Console.WriteLine("Invalid Order ID.");
+            return;
+        }
+        var orderToDelete = await db.Orders.FindAsync(orderId);
+        if (orderToDelete == null)
+        {
+            Console.WriteLine("Order not found.");
+            return;
+        }
+        
+        Console.WriteLine("Are you sure you want to delete the order with ID " + orderId + "? (y/n): ");
+        var confirmation = Console.ReadLine()?.Trim().ToLower();
+        if (confirmation != "y")
+        {
+            Console.WriteLine("Order deletion cancelled.");
+            return;
+        }
+        db.Orders.Remove(orderToDelete);
+        await db.SaveChangesAsync();
+        Console.WriteLine($"Order with ID {orderId} has been deleted.");
     }
 }
