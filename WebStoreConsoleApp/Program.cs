@@ -32,7 +32,7 @@ public class Program
         {
             while (true)
             {
-                Console.WriteLine("\nCustomers: 1. List | 2. Add | 3. Edit (3 <id>) | 4. Delete | 0. Exit");
+                Console.WriteLine("\nCustomers: 1. List | 2. Add | 3. Edit (3 <id>) | 4. Delete | 5. Customer-Orders-Count | 0. Exit");
                 Console.WriteLine(" ");
                 var line = Console.ReadLine()?.Trim() ?? string.Empty;
 
@@ -66,6 +66,9 @@ public class Program
                     case "4":
                         await CustomerService.CustomerDeleteAsync();
                         break;
+                    case "5":
+                        await CustomerService.CustomerOrderCountAsync();
+                        return;
                     case "0":
                         return;
                     default:

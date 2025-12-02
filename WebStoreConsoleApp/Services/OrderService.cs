@@ -41,7 +41,7 @@ public class OrderService
             .ThenInclude(x => x.Product)
             .ToListAsync();
         Console.WriteLine("Order Details:");
-        Console.WriteLine("OrderID | ProductName | Quantity | Price");
+        Console.WriteLine("OrderID | ProductName | Quantity | Price | Row Total");
         foreach (var order in orderdetails)
         {
             if (order.OrderId == detailsId)
@@ -52,7 +52,7 @@ public class OrderService
                     var rowTotal = orderRow.OrderRowQuantity * orderRow.OrderRowUnitPrice;
                     var orderTotal = orderRow.OrderRowQuantity * rowTotal;
                     Console.WriteLine(
-                        $"{order.OrderId} | {orderRow.Product?.ProductName} | {orderRow.OrderRowQuantity} | {orderRow.OrderRowUnitPrice.ToString("C", culture)}");
+                        $"{order.OrderId} | {orderRow.Product?.ProductName} | {orderRow.OrderRowQuantity} | {orderRow.OrderRowUnitPrice.ToString("C", culture) } | {rowTotal.ToString("C", culture)}");
                 }
                 Console.WriteLine(" ");
                 Console.WriteLine($"Total Amount: {order.TotalAmount.ToString("C", culture)}");
@@ -362,7 +362,10 @@ public class OrderService
             Console.WriteLine($"{summary.OrderId} | {summary.OrderDate} | {summary.TotalAmount.ToString("C", culture)} | {summary.CustomerEmail}");
         }
     }
-
+    
+    /// <summary>
+    ///  Deletes an order by its ID.
+    /// </summary>
     public static async Task OrderDeleteAsync()
     {
         using var db = new StoreContext();

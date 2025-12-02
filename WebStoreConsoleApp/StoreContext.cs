@@ -11,6 +11,7 @@ public class StoreContext : DbContext
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<OrderSummary> OrderSummaries => Set<OrderSummary>();
+    public DbSet<CustomerOrderCount> CustomerOrderCounts => Set<CustomerOrderCount>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -27,6 +28,12 @@ public class StoreContext : DbContext
                 o.ToView("OrderSummaryView"); // Koppla tabellen mot SQlite
             }
         );
+        
+        modelBuilder.Entity<CustomerOrderCount>(c=>
+        {
+            c.HasNoKey();
+            c.ToView("CustomerOrderCountView");
+        });
             
         modelBuilder.Entity<Customer>(c =>
         {

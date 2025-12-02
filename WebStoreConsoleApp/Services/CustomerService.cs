@@ -142,4 +142,20 @@ public class CustomerService
             Console.WriteLine(exeption.Message);
         }
     }
+
+    public static async Task CustomerOrderCountAsync()
+    {
+        using var db = new StoreContext();
+        
+        var customerOrderCounts = await db.CustomerOrderCounts
+            .AsNoTracking()
+            .OrderByDescending(c => c.CustomerId)
+            .ToListAsync();
+        Console.WriteLine("Customer Order Counts:");
+        Console.WriteLine("ID | Name | Email | Number of Orders");
+        foreach (var coc in customerOrderCounts)
+        {
+            Console.WriteLine($"{coc.CustomerId} | {coc.CustomerName} | {coc.CustomerEmail} | {coc.NumberOfOrders}");
+        }
+    }
 }
