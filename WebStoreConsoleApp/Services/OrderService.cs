@@ -1,9 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using WebStoreConsoleApp.Models;
-
 namespace WebStoreConsoleApp.Services;
 
 public class OrderService
@@ -119,17 +113,20 @@ public class OrderService
             Console.Write("Enter quantity: ");
             if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
             {
-                Console.WriteLine("Quantity must be a positive integer.");
+                Console.WriteLine("Quantity must be a positive number.");
                 continue;
             }
 
-            var row = new OrderRow
+            if (productToAdd != null)
             {
-                ProductId = productToAdd.ProductId,
-                OrderRowQuantity = quantity,
-                OrderRowUnitPrice = productToAdd.ProductPrice
-            };
-            orderRows.Add(row);
+                var row = new OrderRow
+                {
+                    ProductId = productToAdd.ProductId,
+                    OrderRowQuantity = quantity,
+                    OrderRowUnitPrice = productToAdd.ProductPrice
+                };
+                orderRows.Add(row);
+            }
 
             Console.WriteLine(" ");
             Console.WriteLine("Product(s) added to order: " + productToAdd?.ProductName + " | Quantity: " + quantity +
@@ -180,48 +177,88 @@ public class OrderService
     ///  Lists orders filtered by their status.
     /// </summary>
     public static async Task OrderByStatusAsync()
-    {
-        using var db = new StoreContext();
+{
+    using var db = new StoreContext();
 
+    while (true)
+    {
         var orders = await db.Orders
             .Include(o => o.Customer)
             .OrderBy(o => o.OrderDate)
             .ToListAsync();
 
-        Console.WriteLine("All orders: ");
+        Console.WriteLine("All orders:");
         Console.WriteLine("OrderID | Customer | OrderDate | TotalAmount | OrderStatus");
+
         foreach (var order in orders)
         {
             Console.WriteLine(
-                $"OrderID: {order.OrderId} | Customer: {order.Customer?.CustomerName} | OrderDate: {order.OrderDate} | TotalAmount: {order.TotalAmount} | OrderStatus: {order.OrderStatus}");
+                $"OrderID: {order.OrderId} | " +
+                $"Customer: {order.Customer?.CustomerName} | " +
+                $"OrderDate: {order.OrderDate} | " +
+                $"TotalAmount: {order.TotalAmount} | " +
+                $"OrderStatus: {order.OrderStatus}");
         }
 
         Console.WriteLine();
-        Console.WriteLine("Enter order status (Pending, Processing, Paid, Shipped, Delivered): ");
-        var statusInput = Console.ReadLine()?.Trim().ToLowerInvariant();
-        if (string.IsNullOrEmpty(statusInput))
+        Console.WriteLine("Select an order status:");
+        Console.WriteLine("1. Pending");
+        Console.WriteLine("2. Processing");
+        Console.WriteLine("3. Paid");
+        Console.WriteLine("4. Shipped");
+        Console.WriteLine("5. Delivered");
+        Console.WriteLine("0. Exit");
+
+        var input = Console.ReadLine()?.Trim();
+
+        if (input == "0")
         {
-            Console.WriteLine("Order status is required.");
+            Console.WriteLine("Exiting..");
             return;
+        }
+
+        string? statusInput = input switch
+        {
+            "1" => "Pending",
+            "2" => "Processing",
+            "3" => "Paid",
+            "4" => "Shipped",
+            "5" => "Delivered",
+            _ => null
+        };
+
+        if (statusInput == null)
+        {
+            Console.WriteLine("Invalid selection. Please try again.");
+            continue;
         }
 
         var filteredOrders = orders
-            .Where(o => o.OrderStatus.Equals(statusInput, StringComparison.OrdinalIgnoreCase))
+            .Where(o => o.OrderStatus != null && o.OrderStatus.Equals(statusInput, StringComparison.OrdinalIgnoreCase))
             .ToList();
+
         if (!filteredOrders.Any())
         {
             Console.WriteLine($"No orders found with status '{statusInput}'.");
-            return;
+            continue;
         }
 
-        Console.WriteLine($"\nOrders with status '{statusInput}': ");
+        Console.WriteLine($"\nOrders with status '{statusInput}':");
         Console.WriteLine("OrderID | Customer | OrderDate | TotalAmount | OrderStatus");
+
         foreach (var order in filteredOrders)
         {
             Console.WriteLine(
-                $"OrderID: {order.OrderId} | Customer: {order.Customer?.CustomerName} | OrderDate: {order.OrderDate} | TotalAmount: {order.TotalAmount} | OrderStatus: {order.OrderStatus}");
+                $"OrderID: {order.OrderId} | " +
+                $"Customer: {order.Customer?.CustomerName} | " +
+                $"OrderDate: {order.OrderDate} | " +
+                $"TotalAmount: {order.TotalAmount} | " +
+                $"OrderStatus: {order.OrderStatus}");
         }
+
+        Console.WriteLine();
     }
+}
     
     /// <summary>
     ///  Lists order summaries including customer email.

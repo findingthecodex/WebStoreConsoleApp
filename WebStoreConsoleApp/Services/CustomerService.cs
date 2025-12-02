@@ -1,9 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using WebStoreConsoleApp;
-using WebStoreConsoleApp.Models;
-
 namespace WebStoreConsoleApp.Services;
 
 public class CustomerService

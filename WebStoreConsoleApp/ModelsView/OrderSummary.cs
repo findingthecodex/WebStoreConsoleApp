@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace WebStoreConsoleApp.Models;
 
 // Detta är en keyless entitet (INGEN PK)

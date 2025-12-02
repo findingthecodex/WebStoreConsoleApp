@@ -1,10 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using WebStoreConsoleApp.Models;
-
 namespace WebStoreConsoleApp.SeedData;
 
 public class Seeds
 {
+    
+    /// <summary>
+    ///  Migrates and seeds the database with initial data if necessary.
+    /// </summary>
     public static async Task MigrateDatabaseAsync()
     {
         Console.WriteLine("Db: " + Path.Combine(AppContext.BaseDirectory, "WebStoreConsoleApp.db"));
@@ -13,6 +14,7 @@ public class Seeds
         {
             await db.Database.MigrateAsync();
 
+            // Seed Customers
             if (!await db.Customers.AnyAsync())
             {
                 db.Customers.AddRange(
@@ -25,6 +27,7 @@ public class Seeds
                 Console.WriteLine("Seeded Customers");
             }
             
+            // Seed Categories
             Category headphonesCategory;
             Category phonesCategory;
             Category tabletsCategory;
@@ -58,6 +61,7 @@ public class Seeds
                 accessoriesCategory = await db.Categories.FirstAsync(c => c.CategoryName == "Accessories");
             }
 
+            // Seed Products
             if (!await db.Products.AnyAsync())
             {
                 db.Products.AddRange(

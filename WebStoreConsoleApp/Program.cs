@@ -1,12 +1,4 @@
-﻿using System;
-using WebStoreConsoleApp;
-using WebStoreConsoleApp.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using WebStoreConsoleApp.SeedData;
-using WebStoreConsoleApp.Services;
-
-
+﻿
 public class Program
 {
     public static async Task Main(string[] args)
@@ -17,6 +9,7 @@ public class Program
             Console.WriteLine("\nChoose an option:");
             Console.WriteLine("1. Customers");
             Console.WriteLine("2. Orders");
+            Console.WriteLine("3. Products");
             Console.WriteLine("Exit- Shutdown");
             Console.WriteLine(" ");
 
@@ -26,6 +19,8 @@ public class Program
             else if (choice == "2")
                 await OrderMenu();
             else if (choice == "3")
+                await ProductMenu();
+            else if (choice != null && (choice.Equals("Exit", StringComparison.OrdinalIgnoreCase) || choice.Equals("Shutdown", StringComparison.OrdinalIgnoreCase)))
                 break;
             else
             {
@@ -124,6 +119,56 @@ public class Program
                         return;
                     default:
                         Console.WriteLine("Unknown command");
+                        break;
+                }
+            }
+        }
+
+        static async Task ProductMenu()
+        {
+            while (true)
+            {
+                Console.WriteLine("Categories: ");
+                Console.WriteLine("1. Headphones");
+                Console.WriteLine("2. Phones");
+                Console.WriteLine("3. Tablets");
+                Console.WriteLine("4. Laptops");
+                Console.WriteLine("5. Accessories");
+                Console.WriteLine("6. New Order");
+                Console.WriteLine("0. Exit");
+                Console.WriteLine(" ");
+                var line = Console.ReadLine()?.Trim() ?? string.Empty;
+                var parts = line.Split(' ');
+                var cmd = parts[0].ToLowerInvariant();
+                
+                if (cmd == "0")
+                {
+                    Console.WriteLine("Exiting..");
+                    return;
+                }
+
+                switch (cmd)
+                {
+                    case "1":
+                        await ProductService.ListHeadPhonesAsync();
+                        break;
+                    case "2":
+                        await ProductService.ListPhonesAsync();
+                        break;
+                    case "3":
+                        await ProductService.ListTabletsAsync();
+                        break;
+                    case "4":
+                        await ProductService.ListLaptopsAsync();
+                        break;
+                    case "5":
+                        await ProductService.ListAccessoriesAsync();
+                        break;
+                    case "6":
+                        await OrderService.OrderAddAsync();
+                        break;
+                    default:
+                        Console.WriteLine("Invalid selection. Please try again.");
                         break;
                 }
             }
