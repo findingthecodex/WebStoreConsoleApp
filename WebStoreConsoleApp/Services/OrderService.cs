@@ -1,8 +1,9 @@
 
+
 namespace WebStoreConsoleApp.Services;
 
 public class OrderService
-{ 
+{
     /// <summary>
     ///  Lists all orders in the database.
     /// </summary>
@@ -24,7 +25,7 @@ public class OrderService
                 $"{order.OrderId} | {order.Customer?.CustomerName} | {order.OrderDate} | {order.TotalAmount.ToString("C", culture)} | {order.OrderStatus}");
         }
     }
-    
+
     /// <summary>
     ///  Lists order details for a specific order ID.
     /// </summary>
@@ -58,107 +59,179 @@ public class OrderService
             }
         }
     }
-    
+
+    /// <summary>
+    ///  Adds a new order to the database.
+    /// </summary>
     /// <summary>
     ///  Adds a new order to the database.
     /// </summary>
     public static async Task OrderAddAsync()
     {
-        await CustomerService.CustomerListAsync();
-        
         using var db = new StoreContext();
-        
-        Console.WriteLine(" ");
-        Console.Write("Please enter the Customer ID for the new order: ");
-        Console.WriteLine("(Type EXIT to cancel)");
-
-        if (!int.TryParse(Console.ReadLine(), out int customerId))
-        {
-            Console.WriteLine("Customer ID is required.");
-            return;
-        }
-
-        var customer = await db.Customers.FindAsync(customerId);
-        if (customer == null)
-        {
-            Console.WriteLine("Customer ID is required.");
-        }
-
-        Console.WriteLine("Products available: ");
-        var products = await db.Products
-            .AsNoTracking()
-            .OrderBy(p => p.ProductId)
-            .ToListAsync();
-        
         var culture = new CultureInfo("sv-SE");
-        foreach (var product in products)
-        {
-            Console.WriteLine(
-                $"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)} ");
-        }
+         
+        await CustomerService.CustomerListAsync();
 
-        var orderRows = new List<OrderRow>();
-
+        // Choose customer
+        int customerId;
+        Customer? customer;
         while (true)
         {
-            Console.WriteLine(" ");
-            Console.WriteLine("Add product to the order (ProductID): ");
-            Console.WriteLine($"For customer: {customer?.CustomerName}");
-            Console.WriteLine("(Type EXIT to cancel)");
-            if (!int.TryParse(Console.ReadLine(), out int productId))
+            Console.WriteLine();
+            Console.WriteLine("Enter Customer ID for the new order (or type EXIT to cancel): ");
+            var input = Console.ReadLine()?.Trim();
+
+            if (input?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
             {
-                Console.WriteLine("Product ID is required.");
+                Console.WriteLine("Order cancelled.");
                 return;
             }
 
-            var productToAdd = await db.Products.FindAsync(productId);
-            if (productToAdd == null)
+            if (!int.TryParse(input, out customerId))
             {
-                Console.WriteLine("Product ID is required.");
-            }
-
-            Console.WriteLine("Product: " + productToAdd?.ProductName + " | Price: " + productToAdd?.ProductPrice.ToString("C", culture));
-
-            Console.WriteLine(" ");
-            Console.Write("Enter quantity: ");
-            Console.WriteLine("(Type EXIT to cancel)");
-            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
-            {
-                Console.WriteLine("Quantity must be a positive number.");
+                Console.WriteLine("Invalid Customer ID. Try again.");
                 continue;
             }
 
-            if (productToAdd != null)
+            customer = await db.Customers.FindAsync(customerId);
+            if (customer == null)
             {
-                var row = new OrderRow
-                {
-                    ProductId = productToAdd.ProductId,
-                    OrderRowQuantity = quantity,
-                    OrderRowUnitPrice = productToAdd.ProductPrice
-                };
-                orderRows.Add(row);
-            }
-
-            Console.WriteLine(" ");
-            Console.WriteLine("Product(s) added to order: " + productToAdd?.ProductName + " | Quantity: " + quantity +
-                              " | Unit Price: " + productToAdd?.ProductPrice.ToString("C", culture));
-
-            Console.WriteLine("Do you want to add more products? (y/n): ");
-            var addMore = Console.ReadLine()?.Trim().ToLower();
-            if (addMore == "y")
-            {
+                Console.WriteLine("Customer not found. Try again.");
                 continue;
             }
 
             break;
         }
 
+        var orderRows = new List<OrderRow>();
+    
+        while (true) // Loop to add multiple products
+        {
+            // --- Step 1 - Chose category ---
+            var categories = await db.Categories
+                .AsNoTracking()
+                .OrderBy(c => c.CategoryId)
+                .ToListAsync();
+
+            Console.WriteLine("\nAvailable Categories:");
+            foreach (var c in categories)
+            {
+                Console.WriteLine($"{c.CategoryId} | {c.CategoryName}");
+            }
+            Console.WriteLine(" ");
+
+            int categoryId;
+            while (true)
+            {
+                Console.WriteLine("Select a category (or type EXIT to cancel): ");
+                var catInput = Console.ReadLine()?.Trim();
+
+                if (catInput?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    Console.WriteLine("Order cancelled.");
+                    return;
+                }
+
+                if (!int.TryParse(catInput, out categoryId) || !categories.Any(c => c.CategoryId == categoryId))
+                {
+                    Console.WriteLine("Invalid category. Try again.");
+                    continue;
+                }
+                break;
+            }
+
+            // --- Step 2: Select products ---
+            var products = await db.Products
+                .Where(p => p.CategoryId == categoryId)
+                .OrderBy(p => p.ProductName)
+                .ToListAsync();
+
+            Console.WriteLine("\nProducts in selected category:");
+            foreach (var p in products)
+            {
+                Console.WriteLine($"{p.ProductId} | {p.ProductName} | {p.ProductPrice.ToString("C", culture)}");
+            }
+            Console.WriteLine(" ");
+        
+            Product? productToAdd = null;
+            while (true)
+            {
+                Console.WriteLine("Select a product (type BACK for categories or EXIT to cancel): ");
+                var prodInput = Console.ReadLine()?.Trim();
+
+                if (prodInput?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    Console.WriteLine("Order cancelled.");
+                    return;
+                }
+                
+
+                if (prodInput?.Equals("back", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    productToAdd = null;
+                    break;
+                }
+                Console.WriteLine(" ");
+
+                if (!int.TryParse(prodInput, out int productId) || !products.Any(p => p.ProductId == productId))
+                {
+                    Console.WriteLine("Invalid product. Try again.");
+                    continue;
+                }
+
+                productToAdd = products.First(p => p.ProductId == productId);
+                break;
+            }
+
+            if (productToAdd == null)
+            {
+                continue;
+            }
+        
+            // --- Step 3: Select quantity ---
+            int quantity;
+            while (true)
+            {
+                Console.WriteLine($"Enter quantity for {productToAdd.ProductName} (Type EXIT to cancel): ");
+                var qtyInput = Console.ReadLine()?.Trim();
+
+                if (qtyInput?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    Console.WriteLine("Order cancelled.");
+                    return;
+                }
+
+                if (!int.TryParse(qtyInput, out quantity) || quantity <= 0)
+                {
+                    Console.WriteLine("Quantity must be a positive number. Try again.");
+                    continue;
+                }
+                break;
+            }
+
+            orderRows.Add(new OrderRow
+            {
+                ProductId = productToAdd.ProductId,
+                OrderRowQuantity = quantity,
+                OrderRowUnitPrice = productToAdd.ProductPrice
+            });
+
+            Console.WriteLine($"Added: {productToAdd.ProductName} | Quantity: {quantity} | Unit Price: {productToAdd.ProductPrice.ToString("C", culture)}");
+
+            // Ask to add more products
+            Console.Write("Do you want to add more products? (y/n): ");
+            var addMore = Console.ReadLine()?.Trim().ToLower();
+            if (addMore != "y") break;
+        }
+
         if (!orderRows.Any())
         {
-            Console.WriteLine("No products added to the order. Order creation cancelled.");
+            Console.WriteLine("No products added. Order cancelled.");
             return;
         }
 
+        // Save order
         decimal total = orderRows.Sum(x => x.OrderRowUnitPrice * x.OrderRowQuantity);
 
         var newOrder = new Order
@@ -173,11 +246,12 @@ public class OrderService
         db.Orders.Add(newOrder);
         await db.SaveChangesAsync();
 
-        Console.WriteLine("Order Summary:");
+        // Show order summary
+        Console.WriteLine("\nOrder Summary:");
         foreach (var x in orderRows)
         {
-            Console.WriteLine("ProductID: " + x.ProductId + " | + Product(s): " + x.Product + " | Quantity: " +
-                              x.OrderRowQuantity + " | Unit Price: " + x.OrderRowUnitPrice.ToString("C", culture));
+            var prod = await db.Products.FindAsync(x.ProductId);
+            Console.WriteLine($"Product: {prod?.ProductName} | Quantity: {x.OrderRowQuantity} | Unit Price: {x.OrderRowUnitPrice.ToString("C", culture)}");
         }
 
         Console.WriteLine($"\nTOTAL ORDER SUM: {total}");
@@ -270,14 +344,14 @@ public class OrderService
         Console.WriteLine();
     }
 }
-    
+
     /// <summary>
     ///  Lists order summaries including customer email.
     /// </summary>
     public static async Task ListOrdersSummary()
     {
         using var db = new StoreContext();
-        
+
         var summaries = await db.OrderSummaries.OrderBy(o => o.OrderId).ToListAsync();
         Console.WriteLine("Order-Summary:");
         Console.WriteLine("Order ID | OrderDate | TotalAmount SEK | Customer Email:");
@@ -309,7 +383,7 @@ public class OrderService
 
         Console.Write("Please enter the Order ID to delete: ");
         Console.WriteLine("(Type EXIT to cancel)");
-        
+
         if (!int.TryParse(Console.ReadLine(), out int orderId))
         {
             Console.WriteLine("Invalid Order ID.");
@@ -321,7 +395,7 @@ public class OrderService
             Console.WriteLine("Order not found.");
             return;
         }
-        
+
         Console.WriteLine("Are you sure you want to delete the order with ID " + orderId + "? (y/n): ");
         var confirmation = Console.ReadLine()?.Trim().ToLower();
         if (confirmation != "y")
