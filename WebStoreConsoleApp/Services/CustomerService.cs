@@ -28,7 +28,14 @@ public class CustomerService
     {
         
         Console.Write("Please enter the name of the customer: ");
-        var customerName = Console.ReadLine()?.Trim() ?? string.Empty;
+        Console.WriteLine("(Type EXIT to cancel)");
+        var customerName = Console.ReadLine()?.Trim() ?? string.Empty.ToLowerInvariant();
+        
+        if (customerName.Equals("EXIT", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Customer addition cancelled.");
+            return;
+        }
 
         if (string.IsNullOrEmpty(customerName) || customerName.Length > 50)
         {
