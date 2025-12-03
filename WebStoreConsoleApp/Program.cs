@@ -135,7 +135,7 @@ public class Program
             while (true)
             {
                 Console.WriteLine(
-                    "\nCategories : 1. Headphones | 2. Phones | 3. Laptops | 4. Tablets | 5. Accessories | 6. New-Order | 0. Exit");
+                    "\nCategories : 1. Headphones | 2. Phones | 3. Laptops | 4. Tablets | 5. Accessories | 6. New-Order | 7. Product-Sales-View | 0. Exit");
                 Console.WriteLine(" ");
                 var line = Console.ReadLine()?.Trim() ?? string.Empty;
                 var parts = line.Split(' ');
@@ -166,6 +166,9 @@ public class Program
                         break;
                     case "6":
                         await OrderService.OrderAddAsync();
+                        break;
+                    case "7":
+                        await ProductService.ProductSalesViewAsync();
                         break;
                     default:
                         Console.WriteLine("Invalid selection. Please try again.");

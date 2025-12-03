@@ -108,4 +108,24 @@ public class ProductService
             Console.WriteLine($"{product.ProductId} | {product.ProductName} | {product.ProductPrice.ToString("C", culture)}");
         }
     }
+    
+    public static async Task ProductSalesViewAsync()
+    {
+        using var db = new StoreContext();
+        var productSales = await db.ProductSalesViews
+            .AsNoTracking()
+            .OrderBy(p => p.ProductId)
+            .ToListAsync();
+        
+        Console.WriteLine("Product Sales Summary:");
+        Console.WriteLine("ProductID | ProductName");
+        var culture = new CultureInfo("sv-SE");
+        foreach (var ps in productSales)
+        {
+            Console.WriteLine($"{ps.ProductId} | {ps.ProductName}");
+            Console.WriteLine($"Total Quantity sold: {ps.TotalQuantitySold}");
+            Console.WriteLine($"Total Sales: {ps.TotalSalesAmount.ToString("C", culture)}");
+            Console.WriteLine(" ");
+        }
+    }
 }
