@@ -112,7 +112,7 @@ public class ProductService
     public static async Task ProductSalesViewAsync()
     {
         using var db = new StoreContext();
-        var productSales = await db.ProductSalesViews
+        var productSales = await db.ProductSales
             .AsNoTracking()
             .OrderBy(p => p.ProductId)
             .ToListAsync();
