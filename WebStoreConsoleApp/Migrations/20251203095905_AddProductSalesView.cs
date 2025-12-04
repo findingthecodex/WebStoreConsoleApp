@@ -27,8 +27,8 @@ namespace WebStoreConsoleApp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-            DROP VIEW IF EXISTS ProductSalesView;
-            ");
+                           DROP VIEW IF EXISTS ProductSalesView;
+                           ");
         }
     }
 }
