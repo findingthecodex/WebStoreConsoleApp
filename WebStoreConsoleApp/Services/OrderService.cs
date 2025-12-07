@@ -352,7 +352,9 @@ public class OrderService
     {
         using var db = new StoreContext();
 
-        var summaries = await db.OrderSummaries.OrderBy(o => o.OrderId).ToListAsync();
+        var summaries = await db.OrderSummaries
+            .OrderBy(o => o.OrderId)
+            .ToListAsync();
         Console.WriteLine("Order-Summary:");
         Console.WriteLine("Order ID | OrderDate | TotalAmount SEK | Customer Email:");
 
@@ -410,4 +412,27 @@ public class OrderService
         await db.SaveChangesAsync();
         Console.WriteLine($"Order with ID {orderId} has been deleted.");
     }
+
+    public static async Task OrderDetailViewAsync()
+    {
+        using var db = new StoreContext();
+
+        var orderdetail = await db.OrderDetails
+            .OrderByDescending(o => o.OrderId)
+            .ToListAsync();
+        
+        Console.WriteLine("Order detail:");
+        Console.WriteLine("OrderID | Name | OrderDate | TotalAmount");
+        var culture = new CultureInfo("sv-SE");
+        foreach (var detail in orderdetail)
+        {
+            Console.WriteLine($"{detail.OrderId} | {detail.CustomerName} | {detail.OrderDate} | {detail.TotalAmount}");
+        }
+        
+    }
+    
+    
+    
+    
+    
 }

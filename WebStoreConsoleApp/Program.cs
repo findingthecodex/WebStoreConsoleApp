@@ -83,7 +83,7 @@ public class Program
             while (true)
             {
                 Console.WriteLine(
-                    "\nOrders: 1. Order-List | 2. Order-Details | 3. New-Order | 4. Status | 5. Order-Summary | 6. Delete-Order | 0. Exit");
+                    "\nOrders: 1. Order-List | 2. Order-Details | 3. New-Order | 4. Status | 5. Order-Summary | 6. Delete-Order | 7. Order-Detail-View | 0. Exit");
                 Console.WriteLine(" ");
                 var line = Console.ReadLine()?.Trim() ?? string.Empty;
 
@@ -120,6 +120,9 @@ public class Program
                         break;
                     case"6":
                         await OrderService.OrderDeleteAsync();
+                        break;
+                    case "7":
+                        await OrderService.OrderDetailViewAsync();
                         break;
                     case "0":
                         return;

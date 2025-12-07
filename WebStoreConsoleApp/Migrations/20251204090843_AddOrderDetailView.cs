@@ -13,15 +13,15 @@ namespace WebStoreConsoleApp.Migrations
             migrationBuilder.Sql(@"
             CREATE VIEW IF NOT EXISTS OrderDetailView AS
                 SELECT
-                    o.Id AS OrderId,
+                    o.OrderId,
                     c.CustomerName,
                     o.OrderDate,
-                    COUNT(od.OrderId) AS TotalRows,
-                    SUM(od.Price * od.Quantity) AS TotalAmount
+                    COUNT(orw.OrderId) AS TotalRows,
+                    SUM(orw.OrderRowUnitPrice * orw.OrderRowQuantity) AS TotalAmount
                 FROM Orders AS o
-                LEFT JOIN OrderDetail AS od ON od.OrderId = o.Id
-                LEFT JOIN Customer AS c ON o.CustomerId = c.Id
-                GROUP BY o.Id, c.CustomerName, o.OrderDate;
+                LEFT JOIN OrderRows AS orw ON orw.OrderId = o.OrderId
+                LEFT JOIN Customers AS c ON o.CustomerId = c.CustomerId
+                GROUP BY o.OrderId, c.CustomerName, o.OrderDate;
             ");
         }
 
