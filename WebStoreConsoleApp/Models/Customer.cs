@@ -12,8 +12,15 @@ public class Customer
     public string? CustomerName { get; set; }
     [Required, MaxLength(50)]
     public string? CustomerAddress { get; set; }
+
+    private string? _customerEmail;
+
     [Required, MaxLength(50)]
-    public string? CustomerEmail { get; set; }
+    public string? CustomerEmail
+    {
+        get => _customerEmail == null ? null : EncryptionHelper.Decrypt(_customerEmail);
+        set => _customerEmail = string.IsNullOrEmpty(value) ? null : EncryptionHelper.Encrypt(value);
+    }
     
     // Navigation
     public List<Order>? Orders { get; set; } = new ();

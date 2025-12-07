@@ -13,19 +13,6 @@ public class Seeds
 
         {
             await db.Database.MigrateAsync();
-
-            // Seed Customers
-            if (!await db.Customers.AnyAsync())
-            {
-                db.Customers.AddRange(
-                    new Customer { CustomerName = "Amanda Ed", CustomerAddress = "Fjällgatan 1", CustomerEmail = "amanda.ed@gmail.com"},
-                    new Customer { CustomerName = "James Gregory", CustomerAddress = "Kalkstigen 12", CustomerEmail = "james.gregory@gmail.com"},
-                    new Customer { CustomerName = "Anna Ditcheva", CustomerAddress = "Skogstigen 7", CustomerEmail = "anna.ditcheva@gmail.com"},
-                    new Customer { CustomerName = "Björn Borg", CustomerAddress = "Tennisvägen 2", CustomerEmail = "bjorn.borg@gmail.com"}
-                );
-                await db.SaveChangesAsync();
-                Console.WriteLine("Seeded Customers");
-            }
             
             // Seed Categories
             Category headphonesCategory;

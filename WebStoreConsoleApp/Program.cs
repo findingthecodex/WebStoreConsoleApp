@@ -53,15 +53,7 @@ public class Program
                         await CustomerService.CustomerAddAsync();
                         break;
                     case "3":
-                        await CustomerService.CustomerListAsync();
-
-                        if (parts.Length < 2 || !int.TryParse(parts[1], out int editId))
-                        {
-                            Console.WriteLine("Please provide a valid Customer ID to view details.");
-                            break;
-                        }
-
-                        await CustomerService.CustomerEditAsync(editId);
+                        await CustomerService.CustomerEditAsync();
                         break;
                     case "4":
                         await CustomerService.CustomerDeleteAsync();

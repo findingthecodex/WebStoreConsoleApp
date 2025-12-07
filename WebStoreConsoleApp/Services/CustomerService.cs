@@ -42,7 +42,7 @@ public class CustomerService
             Console.WriteLine("Customer Name is required, max 50.");
         }
         
-        Console.Write("Please enter the address of the customer: ");
+        Console.WriteLine("Please enter the address of the customer: ");
         var customerAddress = Console.ReadLine();
         
         if (string.IsNullOrEmpty(customerAddress) || customerAddress.Length > 50)
@@ -50,7 +50,7 @@ public class CustomerService
             Console.WriteLine("Customer City is required, max 50.");
         }
         
-        Console.Write("Please enter the Email of the customer: ");
+        Console.WriteLine("Please enter the Email of the customer: ");
         var customerEmail = Console.ReadLine();
         
         if (string.IsNullOrEmpty(customerEmail) || customerEmail.Length > 50)
@@ -65,45 +65,56 @@ public class CustomerService
             await db.SaveChangesAsync();
             Console.WriteLine("Customer added successfully.");
         }
-        catch (DbUpdateException ex)
+        catch (Exception exception)
         {
-            Console.WriteLine($"Error adding customer: {ex.InnerException?.Message ?? ex.Message}");
+            Console.WriteLine(exception.Message);
         }
     }
-    
+
     /// <summary>
     ///  Edits an existing customer in the database.
     /// </summary>
-    /// <param name="customerId"></param>
-    public static async Task CustomerEditAsync(int customerId)
+    public static async Task CustomerEditAsync()
     {
         using var db = new StoreContext();
-        var customer = await db.Customers.FirstOrDefaultAsync(c => c.CustomerId == 1);
+        
+        await CustomerListAsync();
+        Console.WriteLine(" ");
+        Console.WriteLine("Enter Customer ID to update: ");
+        
+        
+        if (!int.TryParse(Console.ReadLine(), out var customerId))
+        {
+            Console.WriteLine("Invalid ID.");
+            return;
+        }
+        
+        var customer = await db.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
         if (customer == null)
         {
             Console.WriteLine("Customer not found.");
             return;
         }
-         
-        Console.Write($"{customer.CustomerName}");
-        var customername = Console.ReadLine()?.Trim()?? string.Empty;
-        if (string.IsNullOrEmpty(customername))
+        
+        Console.Write($"Name {customer.CustomerName}: ");
+        var newName = Console.ReadLine()?.Trim()?? string.Empty;
+        if (!string.IsNullOrEmpty(newName))
         {
-            customername = customer.CustomerName;
+            customer.CustomerName  = newName;
         }
         
-        Console.Write($"{customer.CustomerEmail}");
-        var customercity = Console.ReadLine()?.Trim()?? string.Empty;
-        if (string.IsNullOrEmpty(customercity))
+        Console.Write($"Adress {customer.CustomerAddress}: ");
+        var newAddress = Console.ReadLine()?.Trim()?? string.Empty;
+        if (!string.IsNullOrEmpty(newAddress))
         {
-            customercity = customer.CustomerEmail;
+            customer.CustomerAddress = newAddress;
         }
         
-        Console.Write($"{customer.CustomerAddress}");
-        var customeremail = Console.ReadLine()?.Trim()?? string.Empty;
-        if (string.IsNullOrEmpty(customeremail))
+        Console.Write($"Email [{customer.CustomerEmail}]: ");
+        var newEmail = Console.ReadLine()?.Trim();
+        if (!string.IsNullOrEmpty(newEmail))
         {
-            customeremail = customer.CustomerEmail;
+            customer.CustomerEmail = newEmail;
         }
 
         try
@@ -124,22 +135,33 @@ public class CustomerService
     public static async Task CustomerDeleteAsync()
     {
         using var db = new StoreContext();
+
+        await CustomerListAsync();
+        Console.WriteLine(" ");
         
-        var customer = await db.Customers.FirstOrDefaultAsync(c => c.CustomerId == 1);
+        Console.Write($"Customer ID to delete: ");
+        if (!int.TryParse(Console.ReadLine(), out int customerId))
+        {
+            Console.WriteLine("Customer not found.");
+        }
+        
+        var customer = await db.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
         if (customer == null)
         {
             Console.WriteLine("Customer not found.");
-            return;
         }
+        
         db.Customers.Remove(customer);
+
         try
         {
             await db.SaveChangesAsync();
             Console.WriteLine("Customer deleted successfully.");
         }
-        catch (DbUpdateException exeption)
+        catch (Exception exception)
         {
-            Console.WriteLine(exeption.Message);
+            Console.WriteLine(exception.Message);
+            throw;
         }
     }
 
