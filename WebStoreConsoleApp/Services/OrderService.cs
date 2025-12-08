@@ -36,8 +36,7 @@ public class OrderService
         await OrderListAsync();
         Console.WriteLine("Enter Order ID to see Order Details: ");
         var input = Console.ReadLine()?.Trim();
-
-        if (input?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
+        
         {
             Console.WriteLine("Order cancelled.");
         }
@@ -60,7 +59,7 @@ public class OrderService
             return;
         }
 
-        Console.WriteLine($"Order Details for {order.OrderId} {order.Customer}: ");
+        Console.WriteLine($"Order Details for OrderID {order.OrderId}: ");
         Console.WriteLine("Product | Quantity         | Price | Row Total");
 
         var culture = new CultureInfo("sv-SE");
@@ -73,18 +72,18 @@ public class OrderService
             foreach (var row in order.OrderRows)
             {
                 var rowTotal = row.OrderRowQuantity * row.OrderRowUnitPrice;
+                
                 Console.WriteLine(
                     $"{row.Product?.ProductName} | " +
                     $"{row.OrderRowQuantity, -10} | " +
                     $"{row.OrderRowUnitPrice.ToString("C", culture)} | " +
                     $"{rowTotal.ToString("C", culture)}");
             }
+            Console.WriteLine(" ");
+            Console.WriteLine($"Total Amount: {order.TotalAmount.ToString("C", culture)}");
         }
     }
-
-    /// <summary>
-    ///  Adds a new order to the database.
-    /// </summary>
+    
     /// <summary>
     ///  Adds a new order to the database.
     /// </summary>
@@ -268,7 +267,7 @@ public class OrderService
         db.Orders.Add(newOrder);
         await db.SaveChangesAsync();
 
-        // Show order summary
+        // Show order-summary
         Console.WriteLine("\nOrder Summary:");
         foreach (var x in orderRows)
         {
@@ -364,7 +363,7 @@ public class OrderService
         }
 
         Console.WriteLine();
-    }
+    } 
 }
 
     /// <summary>
@@ -434,7 +433,10 @@ public class OrderService
         await db.SaveChangesAsync();
         Console.WriteLine($"Order with ID {orderId} has been deleted.");
     }
-
+    
+    /// <summary>
+    /// Lists Order-Details for customrs orders
+    /// </summary>
     public static async Task OrderDetailViewAsync()
     {
         using var db = new StoreContext();
@@ -450,11 +452,5 @@ public class OrderService
         {
             Console.WriteLine($"{detail.OrderId} | {detail.CustomerName} | {detail.OrderDate} | {detail.TotalAmount}");
         }
-        
     }
-    
-    
-    
-    
-    
 }

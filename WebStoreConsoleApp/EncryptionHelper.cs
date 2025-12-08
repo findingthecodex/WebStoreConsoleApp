@@ -1,9 +1,15 @@
 namespace WebStoreConsoleApp;
 
+/// <summary>
+///  Helps encrypt and decrypt data
+/// </summary>
 public static class EncryptionHelper
 {
     private const byte key = 0x42;
 
+    /// <summary>
+    /// Encrypts data
+    /// </summary>
     public static string Encrypt(string text)
     {
         if (string.IsNullOrEmpty(text))
@@ -17,6 +23,9 @@ public static class EncryptionHelper
         return Convert.ToBase64String(bytes);
     }
 
+    /// <summary>
+    /// Decrypts data
+    /// </summary>
     public static string Decrypt(string encryptedText)
     {
         if (string.IsNullOrEmpty(encryptedText))

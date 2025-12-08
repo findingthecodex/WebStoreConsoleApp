@@ -3,6 +3,8 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        
+        // Loads seeds and shows main menu
         await Seeds.MigrateDatabaseAsync();
         while (true)
         {
@@ -28,6 +30,7 @@ public class Program
             }
         }
 
+        // Customer Menu
         static async Task CustomerMenu()
         {
             while (true)
@@ -43,6 +46,12 @@ public class Program
 
                 var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var cmd = parts[0].ToLowerInvariant();
+                
+                if (cmd == "0")
+                {
+                    Console.WriteLine("Exiting..");
+                    return;
+                }
 
                 switch (cmd)
                 {
@@ -70,6 +79,7 @@ public class Program
             }
         }
 
+        // Order Menu
         static async Task OrderMenu()
         {
             while (true)
@@ -86,6 +96,12 @@ public class Program
 
                 var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var cmd = parts[0].ToLowerInvariant();
+                
+                if (cmd == "0")
+                {
+                    Console.WriteLine("Exiting..");
+                    return;
+                }
 
                 switch (cmd)
                 {
@@ -119,6 +135,7 @@ public class Program
             }
         }
 
+        // Product Menu
         static async Task ProductMenu()
         {
             while (true)

@@ -109,6 +109,9 @@ public class ProductService
         }
     }
     
+    /// <summary>
+    /// List a summary of sales
+    /// </summary>
     public static async Task ProductSalesViewAsync()
     {
         using var db = new StoreContext();

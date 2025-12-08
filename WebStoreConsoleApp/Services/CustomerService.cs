@@ -2,9 +2,6 @@ namespace WebStoreConsoleApp.Services;
 
 public class CustomerService
 {
-    public CustomerService()
-    {
-    }
 
     /// <summary>
     ///  Lists all customers in the database.
@@ -170,7 +167,7 @@ public class CustomerService
     }
 
     /// <summary>
-    ///  
+    ///  List of total orders for customers
     /// </summary>
     public static async Task CustomerOrderCountAsync() 
     {
