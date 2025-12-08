@@ -30,32 +30,54 @@ public class OrderService
     ///  Lists order details for a specific order ID.
     /// </summary>
     /// <param name="detailsId"></param>
-    public static async Task OrderDetailsAsync(int detailsId)
+    public static async Task OrderDetailsAsync()
     {
         using var db = new StoreContext();
+        await OrderListAsync();
+        Console.WriteLine("Enter Order ID to see Order Details: ");
+        var input = Console.ReadLine()?.Trim();
 
-        var orderdetails = await db.Orders
+        if (input?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            Console.WriteLine("Order cancelled.");
+        }
+
+        if (!int.TryParse(input, out var orderId))
+        {
+            Console.WriteLine("Invalid Order ID. Try again.");
+        }
+
+        var order = await db.Orders
             .AsNoTracking()
-            .OrderBy(x => x.OrderId)
             .Include(o => o.OrderRows)!
             .ThenInclude(x => x.Product)
-            .ToListAsync();
-        Console.WriteLine("Order Details:");
-        Console.WriteLine("OrderID | ProductName | Quantity | Price | Row Total");
-        foreach (var order in orderdetails)
+            .Include(order => order.Customer)
+            .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+        if (order == null)
         {
-            if (order.OrderId == detailsId)
+            Console.WriteLine($"Order ID {orderId} not found.");
+            return;
+        }
+
+        Console.WriteLine($"Order Details for {order.OrderId} {order.Customer}: ");
+        Console.WriteLine("Product | Quantity         | Price | Row Total");
+
+        var culture = new CultureInfo("sv-SE");
+        if (order.OrderRows == null || !order.OrderRows.Any())
+        {
+            Console.WriteLine("This order has no products.");
+        }
+        else
+        {
+            foreach (var row in order.OrderRows)
             {
-                var culture = new CultureInfo("sv-SE");
-                foreach (var orderRow in order.OrderRows!)
-                {
-                    var rowTotal = orderRow.OrderRowQuantity * orderRow.OrderRowUnitPrice;
-                    var orderTotal = orderRow.OrderRowQuantity * rowTotal;
-                    Console.WriteLine(
-                        $"{order.OrderId} | {orderRow.Product?.ProductName} | {orderRow.OrderRowQuantity} | {orderRow.OrderRowUnitPrice.ToString("C", culture) } | {rowTotal.ToString("C", culture)}");
-                }
-                Console.WriteLine(" ");
-                Console.WriteLine($"Total Amount: {order.TotalAmount.ToString("C", culture)}");
+                var rowTotal = row.OrderRowQuantity * row.OrderRowUnitPrice;
+                Console.WriteLine(
+                    $"{row.Product?.ProductName} | " +
+                    $"{row.OrderRowQuantity, -10} | " +
+                    $"{row.OrderRowUnitPrice.ToString("C", culture)} | " +
+                    $"{rowTotal.ToString("C", culture)}");
             }
         }
     }

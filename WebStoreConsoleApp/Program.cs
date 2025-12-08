@@ -93,13 +93,7 @@ public class Program
                         await OrderService.OrderListAsync();
                         break;
                     case "2":
-
-                        if (parts.Length < 2 || !int.TryParse(parts[1], out int detailsId))
-                        {
-                            Console.WriteLine("Please provide a valid Customer ID to view details.");
-                            break;
-                        }
-                        await OrderService.OrderDetailsAsync(detailsId);
+                        await OrderService.OrderDetailsAsync();
                         break;
                     case "3":
                         await OrderService.OrderAddAsync();
