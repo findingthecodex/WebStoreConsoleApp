@@ -140,7 +140,7 @@ public class CustomerService
         await CustomerListAsync();
         Console.WriteLine(" ");
         
-        Console.Write($"Customer ID to delete: ");
+        Console.Write($"Enter Customer ID to delete: ");
         if (!int.TryParse(Console.ReadLine(), out int customerId))
         {
             Console.WriteLine("Customer not found.");
