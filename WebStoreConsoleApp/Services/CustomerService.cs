@@ -191,7 +191,7 @@ public class CustomerService
     {
         using var db = new StoreContext();
         
-        // Loop customers and orders
+        // Use this For-Loop to Loop customers and orders
         // This is commented-out to not loop new customrs and orders
         
         /*for (int i = 1; i <= 100; i++) // Create 5 orders
