@@ -11,7 +11,7 @@ public class Hashinghelper
     }
     
     /// <summary>
-    /// 
+    ///  Generates a cryptographically secure random salt.
     /// </summary>
     /// <param name="value">Entered value</param>
     /// <param name="base64Salt">The slt</param>
@@ -32,12 +32,12 @@ public class Hashinghelper
     }
 
     /// <summary>
-    /// 
+    /// Verifies a string against a hash and salt
     /// </summary>
-    /// <param name="value"></param>
-    /// <param name="base64Salt"></param>
-    /// <param name="expectedBase64Hash"></param>
-    /// <returns></returns>
+    /// <param name="value">String to verify</param>
+    /// <param name="base64Salt">The salt used to create the hash</param>
+    /// <param name="expectedBase64Hash">Hash as Bae64 string</param>
+    /// <returns>If computed hash matches it will return with true otherwise false</returns>
     public static bool verify(string value, string base64Salt, string expectedBase64Hash)
     {
         var computedHash = HasWithSalt(value, base64Salt);
