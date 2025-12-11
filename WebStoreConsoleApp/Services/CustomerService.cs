@@ -14,18 +14,19 @@ public class CustomerService
             .OrderBy(c => c.CustomerId)
             .ToListAsync();
         Console.WriteLine("Customers:");
-        Console.WriteLine("ID | Name | City | Email");
+        Console.WriteLine("ID | Name | City | Email | SSN HashSalt | SSN Hash");
 
         foreach (var customer in customers)
         {
             Console.WriteLine(
-                $"{customer.CustomerId} | {customer.CustomerName} | {customer.CustomerAddress} | {customer.CustomerEmail}");
+                $"{customer.CustomerId} | {customer.CustomerName} | {customer.CustomerAddress} | {customer.CustomerEmail} | {customer.SsnSalt} | {customer.SsnHash}");
         }
     }
 
     /// <summary>
     ///  Adds a new customer to the database
-    ///  With Rollback
+    ///  Rollback implemented
+    ///  Social security number is hash protected
     /// </summary>
     public static async Task CustomerAddAsync()
     {
@@ -64,8 +65,27 @@ public class CustomerService
             Console.WriteLine("Customer Email is required, max 50.");
         }
         
+        Console.WriteLine("Please enter social security number of the customer: ");
+        var ssn = Console.ReadLine();
+
+        if (string.IsNullOrEmpty(ssn) || ssn.Length > 50)
+        {
+            Console.WriteLine("Customer Social Security Number is required.");
+            await transaction.RollbackAsync();
+            return;
+        }
+
+        var salt = Hashinghelper.Generatesalt();
+        var ssnHash = Hashinghelper.HasWithSalt(ssn, salt);
+        
         db.Customers.Add(new Customer
-            { CustomerName = customerName, CustomerAddress = customerAddress, CustomerEmail = customerEmail });
+        {
+            CustomerName = customerName, 
+            CustomerAddress = customerAddress, 
+            CustomerEmail = customerEmail,
+            SsnSalt = salt,
+            SsnHash = ssnHash,
+        });
         try
         {
             await db.SaveChangesAsync();
