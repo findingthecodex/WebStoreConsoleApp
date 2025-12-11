@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
 using WebStoreConsoleApp.Models;
 
 namespace WebStoreConsoleApp;
@@ -55,6 +56,8 @@ public class StoreContext : DbContext
             c.HasKey(c => c.CustomerId);
             c.Property(x => x.CustomerName).IsRequired().HasMaxLength(50);
             c.Property(x => x.CustomerAddress).IsRequired().HasMaxLength(100);
+            c.Property(x => x.SsnHash).IsRequired().HasMaxLength(50);
+            c.Property(x => x.SsnSalt).IsRequired().HasMaxLength(50);
             c.HasIndex(x => x.CustomerEmail).IsUnique();
         });
 
