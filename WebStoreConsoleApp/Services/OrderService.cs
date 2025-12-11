@@ -1,5 +1,3 @@
-
-
 namespace WebStoreConsoleApp.Services;
 
 public class OrderService
@@ -21,7 +19,7 @@ public class OrderService
         Console.WriteLine("Order-List:");
         Console.WriteLine("OrderID | Name | Product | OrderDate | TotalAmount | OrderStatus");
 
-        // efter query
+        // after query
         sw.Stop();
         Console.WriteLine($"Total time: {sw.ElapsedMilliseconds} ms");
         
@@ -481,4 +479,128 @@ public class OrderService
             Console.WriteLine($"{detail.OrderId} | {detail.CustomerName} | {detail.OrderDate} | {detail.TotalAmount}");
         }
     }
+
+    public static async Task AddOrderWithTransactionAsync()
+{
+    await using var db = new StoreContext();
+    await using var transaction = await db.Database.BeginTransactionAsync();
+    var culture = new CultureInfo("sv-SE");
+
+    try
+    {
+        // --- Choose customer ---
+        var customers = await db.Customers
+            .AsNoTracking()
+            .OrderBy(c => c.CustomerId)
+            .ToListAsync();
+
+        if (!customers.Any())
+        {
+            Console.WriteLine("No Customers found.");
+            return;
+        }
+
+        Console.WriteLine("\nAvailable Customers:");
+        foreach (var customer in customers)
+        {
+            Console.WriteLine($"{customer.CustomerId} | {customer.CustomerName}");
+        }
+
+        int customerId;
+        while (true)
+        {
+            Console.WriteLine("\nEnter Customer ID for the new order (or type EXIT to cancel): ");
+            var input = Console.ReadLine()?.Trim();
+
+            if (input?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                Console.WriteLine("Order cancelled.");
+                await transaction.RollbackAsync();
+                return;
+            }
+
+            if (int.TryParse(input, out customerId) && customers.Any(c => c.CustomerId == customerId))
+            {
+                break; // Valid customer selected
+            }
+            
+            Console.WriteLine("Invalid Customer ID. Please try again.");
+        }
+
+        // --- Add products to order ---
+        var orderRows = new List<OrderRow>();
+        var products = await db.Products.AsNoTracking().ToListAsync();
+        var productLookup = products.ToDictionary(p => p.ProductId, p => p);
+
+        while (true)
+        {
+            Console.WriteLine("\nAvailable Products:");
+            foreach (var p in products)
+            {
+                Console.WriteLine($"{p.ProductId} | {p.ProductName} | {p.ProductPrice.ToString("C", culture)}");
+            }
+
+            Console.WriteLine("\nEnter Product ID to add (or type DONE to finish):");
+            var prodInput = Console.ReadLine()?.Trim();
+
+            if (prodInput?.Equals("done", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                break;
+            }
+
+            if (int.TryParse(prodInput, out int productId) && productLookup.TryGetValue(productId, out var productToAdd))
+            {
+                Console.Write($"Enter quantity for {productToAdd.ProductName}: ");
+                if (int.TryParse(Console.ReadLine(), out int quantity) && quantity > 0)
+                {
+                    orderRows.Add(new OrderRow
+                    {
+                        ProductId = productToAdd.ProductId,
+                        OrderRowQuantity = quantity,
+                        OrderRowUnitPrice = productToAdd.ProductPrice
+                    });
+                    Console.WriteLine($"Added {quantity} of {productToAdd.ProductName}.");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid quantity.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid Product ID.");
+            }
+        }
+
+        if (!orderRows.Any())
+        {
+            Console.WriteLine("No products added. Order cancelled.");
+            await transaction.RollbackAsync();
+            return;
+        }
+
+        // --- Create and save order ---
+        var newOrder = new Order
+        {
+            CustomerId = customerId,
+            OrderDate = DateTime.Now,
+            OrderStatus = "Pending",
+            TotalAmount = orderRows.Sum(or => or.OrderRowUnitPrice * or.OrderRowQuantity),
+            OrderRows = orderRows
+        };
+
+        db.Orders.Add(newOrder);
+        await db.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        Console.WriteLine($"\nOrder successfully created with ID: {newOrder.OrderId}");
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        Console.WriteLine($"An error occurred: {ex.Message}");
+    }
+}
+
+   
 }

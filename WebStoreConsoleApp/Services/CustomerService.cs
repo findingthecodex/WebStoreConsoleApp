@@ -24,11 +24,15 @@ public class CustomerService
     }
 
     /// <summary>
-    ///  Adds a new customer to the database.
+    ///  Adds a new customer to the database
+    ///  With Rollback
     /// </summary>
     public static async Task CustomerAddAsync()
     {
 
+        using var db = new StoreContext();
+        await using var transaction = await db.Database.BeginTransactionAsync();
+        
         Console.Write("Please enter the name of the customer: ");
         Console.WriteLine("(Type EXIT to cancel)");
         var customerName = Console.ReadLine()?.Trim() ?? string.Empty.ToLowerInvariant();
@@ -51,7 +55,7 @@ public class CustomerService
         {
             Console.WriteLine("Customer City is required, max 50.");
         }
-
+        
         Console.WriteLine("Please enter the Email of the customer: ");
         var customerEmail = Console.ReadLine();
 
@@ -59,18 +63,19 @@ public class CustomerService
         {
             Console.WriteLine("Customer Email is required, max 50.");
         }
-
-        using var db = new StoreContext();
+        
         db.Customers.Add(new Customer
             { CustomerName = customerName, CustomerAddress = customerAddress, CustomerEmail = customerEmail });
         try
         {
             await db.SaveChangesAsync();
+            await transaction.CommitAsync();
             Console.WriteLine("Customer added successfully.");
         }
         catch (Exception exception)
         {
             Console.WriteLine(exception.Message);
+            await transaction.RollbackAsync();
         }
     }
 
@@ -217,7 +222,6 @@ public class CustomerService
 
             db.Customers.Add(customer);
         }
-
         await db.SaveChangesAsync();*/
         
         var sw = System.Diagnostics.Stopwatch.StartNew();
