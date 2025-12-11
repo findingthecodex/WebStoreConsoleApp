@@ -110,5 +110,11 @@ public class StoreContext : DbContext
             c.Property(x => x.CategoryName).IsRequired().HasMaxLength(50);
             c.Property(x => x.CategoryDescription).IsRequired().HasMaxLength(200);
         });
+
+        modelBuilder.Entity<Order>().HasIndex(o => o.OrderDate);
+        modelBuilder.Entity<Order>().HasIndex(o => o.CustomerId);
+        
+        modelBuilder.Entity<Customer>().HasIndex(x => x.CustomerName);
+        modelBuilder.Entity<Customer>().HasIndex(o => o.CustomerEmail);
     }
 }

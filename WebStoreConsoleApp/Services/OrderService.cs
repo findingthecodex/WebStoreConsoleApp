@@ -10,6 +10,9 @@ public class OrderService
     public static async Task OrderListAsync()
     {
         using var db = new StoreContext();
+        // index stopwatch
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        
         var orders = await db.Orders
             .AsNoTracking()
             .OrderBy(c => c.OrderId)
@@ -18,6 +21,11 @@ public class OrderService
         Console.WriteLine("Order-List:");
         Console.WriteLine("OrderID | Name | Product | OrderDate | TotalAmount | OrderStatus");
 
+        // efter query
+        sw.Stop();
+        Console.WriteLine($"Total time: {sw.ElapsedMilliseconds} ms");
+        
+        
         var culture = new CultureInfo("sv-SE");
         foreach (var order in orders)
         {
@@ -33,6 +41,7 @@ public class OrderService
     public static async Task OrderDetailsAsync()
     {
         using var db = new StoreContext();
+        
         await OrderListAsync();
         Console.WriteLine("Enter Order ID to see Order Details: ");
         var input = Console.ReadLine()?.Trim();
@@ -297,198 +306,6 @@ public class OrderService
         Console.WriteLine(ex.Message);
     }
 }
-    
-    /*public static async Task OrderAddAsync()
-    {
-        using var db = new StoreContext();
-        var culture = new CultureInfo("sv-SE");
-         
-        await CustomerService.CustomerListAsync();
-
-        // Choose customer
-        int customerId;
-        Customer? customer;
-        while (true)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Enter Customer ID for the new order (or type EXIT to cancel): ");
-            var input = Console.ReadLine()?.Trim();
-
-            if (input?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                Console.WriteLine("Order cancelled.");
-                return;
-            }
-
-            if (!int.TryParse(input, out customerId))
-            {
-                Console.WriteLine("Invalid Customer ID. Try again.");
-                continue;
-            }
-
-            customer = await db.Customers.FindAsync(customerId);
-            if (customer == null)
-            {
-                Console.WriteLine("Customer not found. Try again.");
-                continue;
-            }
-
-            break;
-        }
-
-        var orderRows = new List<OrderRow>();
-    
-        while (true) // Loop to add multiple products
-        {
-            // --- Step 1 - Chose category ---
-            var categories = await db.Categories
-                .AsNoTracking()
-                .OrderBy(c => c.CategoryId)
-                .ToListAsync();
-
-            Console.WriteLine("\nAvailable Categories:");
-            foreach (var c in categories)
-            {
-                Console.WriteLine($"{c.CategoryId} | {c.CategoryName}");
-            }
-            Console.WriteLine(" ");
-
-            int categoryId;
-            while (true)
-            {
-                Console.WriteLine("Select a category (or type EXIT to cancel): ");
-                var catInput = Console.ReadLine()?.Trim();
-
-                if (catInput?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    Console.WriteLine("Order cancelled.");
-                    return;
-                }
-
-                if (!int.TryParse(catInput, out categoryId) || !categories.Any(c => c.CategoryId == categoryId))
-                {
-                    Console.WriteLine("Invalid category. Try again.");
-                    continue;
-                }
-                break;
-            }
-
-            // --- Step 2: Select products ---
-            var products = await db.Products
-                .Where(p => p.CategoryId == categoryId)
-                .OrderBy(p => p.ProductName)
-                .ToListAsync();
-
-            Console.WriteLine("\nProducts in selected category:");
-            foreach (var p in products)
-            {
-                Console.WriteLine($"{p.ProductId} | {p.ProductName} | {p.ProductPrice.ToString("C", culture)}");
-            }
-            Console.WriteLine(" ");
-        
-            Product? productToAdd = null;
-            while (true)
-            {
-                Console.WriteLine("Select a product (type BACK for categories or EXIT to cancel): ");
-                var prodInput = Console.ReadLine()?.Trim();
-
-                if (prodInput?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    Console.WriteLine("Order cancelled.");
-                    return;
-                }
-                
-
-                if (prodInput?.Equals("back", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    productToAdd = null;
-                    break;
-                }
-                Console.WriteLine(" ");
-
-                if (!int.TryParse(prodInput, out int productId) || !products.Any(p => p.ProductId == productId))
-                {
-                    Console.WriteLine("Invalid product. Try again.");
-                    continue;
-                }
-
-                productToAdd = products.First(p => p.ProductId == productId);
-                break;
-            }
-
-            if (productToAdd == null)
-            {
-                continue;
-            }
-        
-            // --- Step 3: Select quantity ---
-            int quantity;
-            while (true)
-            {
-                Console.WriteLine($"Enter quantity for {productToAdd.ProductName} (Type EXIT to cancel): ");
-                var qtyInput = Console.ReadLine()?.Trim();
-
-                if (qtyInput?.Equals("exit", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    Console.WriteLine("Order cancelled.");
-                    return;
-                }
-
-                if (!int.TryParse(qtyInput, out quantity) || quantity <= 0)
-                {
-                    Console.WriteLine("Quantity must be a positive number. Try again.");
-                    continue;
-                }
-                break;
-            }
-
-            orderRows.Add(new OrderRow
-            {
-                ProductId = productToAdd.ProductId,
-                OrderRowQuantity = quantity,
-                OrderRowUnitPrice = productToAdd.ProductPrice
-            });
-
-            Console.WriteLine($"Added: {productToAdd.ProductName} | Quantity: {quantity} | Unit Price: {productToAdd.ProductPrice.ToString("C", culture)}");
-
-            // Ask to add more products
-            Console.Write("Do you want to add more products? (y/n): ");
-            var addMore = Console.ReadLine()?.Trim().ToLower();
-            if (addMore != "y") break;
-        }
-
-        if (!orderRows.Any())
-        {
-            Console.WriteLine("No products added. Order cancelled.");
-            return;
-        }
-
-        // Save order
-        decimal total = orderRows.Sum(x => x.OrderRowUnitPrice * x.OrderRowQuantity);
-
-        var newOrder = new Order
-        {
-            CustomerId = customerId,
-            OrderDate = DateTime.Now,
-            OrderStatus = "Pending",
-            TotalAmount = total,
-            OrderRows = orderRows
-        };
-
-        db.Orders.Add(newOrder);
-        await db.SaveChangesAsync();
-
-        // Show order-summary
-        Console.WriteLine("\nOrder Summary:");
-        foreach (var x in orderRows)
-        {
-            var prod = await db.Products.FindAsync(x.ProductId);
-            Console.WriteLine($"Product: {prod?.ProductName} | Quantity: {x.OrderRowQuantity} | Unit Price: {x.OrderRowUnitPrice.ToString("C", culture)}");
-        }
-
-        Console.WriteLine($"\nTOTAL ORDER SUM: {total}");
-        Console.WriteLine($"Order saved with OrderId: {newOrder.OrderId}");
-    }*/
     
     /// <summary>
     ///  Lists orders filtered by their status.
