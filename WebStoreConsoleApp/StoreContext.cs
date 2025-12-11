@@ -10,6 +10,10 @@ public class StoreContext : DbContext
     public DbSet<OrderRow> OrderRows => Set<OrderRow>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<OrderSummary> OrderSummaries => Set<OrderSummary>();
+    public DbSet<CustomerOrderCount> CustomerOrderCounts => Set<CustomerOrderCount>();
+    public DbSet<ProductSales> ProductSales => Set<ProductSales>();
+    public DbSet<OrderDetail> OrderDetails => Set<OrderDetail>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -19,6 +23,33 @@ public class StoreContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<OrderSummary>(o =>
+            {
+                o.HasNoKey(); // Saknar PK alltså har ingen primärnyckel
+                o.ToView("OrderSummaryView"); // Koppla tabellen mot SQlite
+            }
+        );
+        
+        modelBuilder.Entity<CustomerOrderCount>(c=>
+        {
+            c.HasNoKey();
+            c.ToView("CustomerOrderCountView");
+        });
+
+        modelBuilder.Entity<ProductSales>(p =>
+        {
+            p.HasNoKey();
+            p.ToView("ProductSalesView");
+        });
+
+        modelBuilder.Entity<OrderDetail>(o =>
+            {
+                o.HasNoKey();
+                o.ToView("OrderDetailView");
+            }
+        );
+            
         modelBuilder.Entity<Customer>(c =>
         {
             c.HasKey(c => c.CustomerId);
@@ -32,7 +63,7 @@ public class StoreContext : DbContext
             o.HasKey(x => x.OrderId);
             o.Property(x => x.OrderDate).IsRequired();
             o.Property(x => x.OrderStatus).IsRequired();
-            o.Property(x => x.OrderTotalPrice);
+            o.Property(x => x.TotalAmount);
 
             // Foreign Key Relation
             o.HasOne(x => x.Customer)
@@ -79,5 +110,11 @@ public class StoreContext : DbContext
             c.Property(x => x.CategoryName).IsRequired().HasMaxLength(50);
             c.Property(x => x.CategoryDescription).IsRequired().HasMaxLength(200);
         });
+
+        modelBuilder.Entity<Order>().HasIndex(o => o.OrderDate);
+        modelBuilder.Entity<Order>().HasIndex(o => o.CustomerId);
+        
+        modelBuilder.Entity<Customer>().HasIndex(x => x.CustomerName);
+        modelBuilder.Entity<Customer>().HasIndex(o => o.CustomerEmail);
     }
 }

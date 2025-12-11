@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebStoreConsoleApp;
 
@@ -10,9 +11,11 @@ using WebStoreConsoleApp;
 namespace WebStoreConsoleApp.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20251202142546_AddCustomerOrderCountView")]
+    partial class AddCustomerOrderCountView
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.11");
@@ -64,8 +67,6 @@ namespace WebStoreConsoleApp.Migrations
                     b.HasIndex("CustomerEmail")
                         .IsUnique();
 
-                    b.HasIndex("CustomerName");
-
                     b.ToTable("Customers");
                 });
 
@@ -113,32 +114,7 @@ namespace WebStoreConsoleApp.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("OrderDate");
-
                     b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("WebStoreConsoleApp.Models.OrderDetail", b =>
-                {
-                    b.Property<string>("CustomerName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TotalRows")
-                        .HasColumnType("INTEGER");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("OrderDetailView", (string)null);
                 });
 
             modelBuilder.Entity("WebStoreConsoleApp.Models.OrderRow", b =>
@@ -214,26 +190,6 @@ namespace WebStoreConsoleApp.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("WebStoreConsoleApp.Models.ProductSales", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TotalQuantitySold")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("TotalSalesAmount")
-                        .HasColumnType("TEXT");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("ProductSalesView", (string)null);
                 });
 
             modelBuilder.Entity("WebStoreConsoleApp.Models.Order", b =>

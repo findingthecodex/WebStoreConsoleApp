@@ -1,3 +1,193 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
+public class Program
+{
+    public static async Task Main(string[] args)
+    {
+        
+        // Loads seeds and shows main menu
+        await Seeds.MigrateDatabaseAsync();
+        while (true)
+        {
+            Console.WriteLine("\nChoose an option:");
+            Console.WriteLine("1. Customers");
+            Console.WriteLine("2. Orders");
+            Console.WriteLine("3. Products");
+            Console.WriteLine("Exit- Shutdown");
+            Console.WriteLine(" ");
 
-Console.WriteLine("Hello, World!");
+            var choice = Console.ReadLine();
+            if (choice == "1")
+                await CustomerMenu();
+            else if (choice == "2")
+                await OrderMenu();
+            else if (choice == "3")
+                await ProductMenu();
+            else if (choice != null && (choice.Equals("Exit", StringComparison.OrdinalIgnoreCase) || choice.Equals("Shutdown", StringComparison.OrdinalIgnoreCase)))
+                break;
+            else
+            {
+                Console.WriteLine("Invalid choice");
+            }
+        }
+
+        // Customer Menu
+        static async Task CustomerMenu()
+        {
+            while (true)
+            {
+                Console.WriteLine("\nCustomers: 1. List | 2. Add | 3. Edit (3 <id>) | 4. Delete | 5. Customer-Orders-Count | 6. Cusstomers-Orders | 0. Exit");
+                Console.WriteLine(" ");
+                var line = Console.ReadLine()?.Trim() ?? string.Empty;
+
+                if (line.Equals("..", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+
+                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var cmd = parts[0].ToLowerInvariant();
+                
+                if (cmd == "0")
+                {
+                    Console.WriteLine("Exiting..");
+                    return;
+                }
+
+                switch (cmd)
+                {
+                    case "1":
+                        await CustomerService.CustomerListAsync();
+                        break;
+                    case "2":
+                        await CustomerService.CustomerAddAsync();
+                        break;
+                    case "3":
+                        await CustomerService.CustomerEditAsync();
+                        break;
+                    case "4":
+                        await CustomerService.CustomerDeleteAsync();
+                        break;
+                    case "5":
+                        await CustomerService.CustomerOrderCountAsync();
+                        return;
+                    case "6":
+                        await CustomerService.CustomerListandOrdersAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Unknown command");
+                        break;
+                }
+            }
+        }
+
+        // Order Menu
+        static async Task OrderMenu()
+        {
+            while (true)
+            {
+                Console.WriteLine(
+                    "\nOrders: 1. Order-List | 2. Order-Details | 3. New-Order | 4. Status | 5. Order-Summary | 6. Delete-Order | 7. Order-Detail-View | 8. New-Order-Transaction | 0. Exit");
+                Console.WriteLine(" ");
+                var line = Console.ReadLine()?.Trim() ?? string.Empty;
+
+                if (line.Equals("..", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+
+                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var cmd = parts[0].ToLowerInvariant();
+                
+                if (cmd == "0")
+                {
+                    Console.WriteLine("Exiting..");
+                    return;
+                }
+
+                switch (cmd)
+                {
+                    case "1":
+                        await OrderService.OrderListAsync();
+                        break;
+                    case "2":
+                        await OrderService.OrderDetailsAsync();
+                        break;
+                    case "3":
+                        await OrderService.OrderAddAsync();
+                        break;
+                    case "4":
+                        await OrderService.OrderByStatusAsync();
+                        break;
+                    case "5":
+                        await OrderService.ListOrdersSummary();
+                        break;
+                    case"6":
+                        await OrderService.OrderDeleteAsync();
+                        break;
+                    case "7":
+                        await OrderService.OrderDetailViewAsync();
+                        break;
+                    case "8":
+                        await OrderService.AddOrderWithTransactionAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Unknown command");
+                        break;
+                }
+            }
+        }
+
+        // Product Menu
+        static async Task ProductMenu()
+        {
+            while (true)
+            {
+                Console.WriteLine(
+                    "\nCategories : 1. Headphones | 2. Phones | 3. Laptops | 4. Tablets | 5. Accessories | 6. New-Order | 7. Product-Sales-View | 0. Exit");
+                Console.WriteLine(" ");
+                var line = Console.ReadLine()?.Trim() ?? string.Empty;
+                var parts = line.Split(' ');
+                var cmd = parts[0].ToLowerInvariant();
+                
+                if (cmd == "0")
+                {
+                    Console.WriteLine("Exiting..");
+                    return;
+                }
+
+                switch (cmd)
+                {
+                    case "1":
+                        await ProductService.ListHeadPhonesAsync();
+                        break;
+                    case "2":
+                        await ProductService.ListPhonesAsync();
+                        break;
+                    case "3":
+                        await ProductService.ListTabletsAsync();
+                        break;
+                    case "4":
+                        await ProductService.ListLaptopsAsync();
+                        break;
+                    case "5":
+                        await ProductService.ListAccessoriesAsync();
+                        break;
+                    case "6":
+                        await OrderService.OrderAddAsync();
+                        break;
+                    case "7":
+                        await ProductService.ProductSalesViewAsync();
+                        break;
+                    default:
+                        Console.WriteLine("Invalid selection. Please try again.");
+                        break;
+                }
+            }
+        }
+    }
+}
+
